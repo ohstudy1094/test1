@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>混雑カウント</title>
+</head>
+<body>
+  <h2>現在の人数: <span id="count">0</span>人</h2>
+  <button onclick="updateCount(1)">入る</button>
+  <button onclick="updateCount(-1)">出る</button>
+
+  <script>
+    let count = 0;
+    const url = "GASのWebアプリURLをここに貼る";
+
+    function updateCount(change) {
+      count += change;
+      if (count < 0) count = 0;
+      document.getElementById("count").textContent = count;
+
+      fetch(url, {
+        method: "POST",
+        body: JSON.stringify({ count: count }),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+    }
+  </script>
+</body>
+</html>
