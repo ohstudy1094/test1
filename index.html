@@ -8,10 +8,11 @@
 
     body {
       font-family: 'Kosugi Maru', sans-serif;
-      background: linear-gradient(135deg, #fce4ec, #e1f5fe);
+      background: #e1f5fe; /* 初期背景色（青） */
       text-align: center;
       padding: 80px 20px;
       margin: 0;
+      transition: background-color 0.5s ease-in-out;
     }
 
     h2 {
@@ -44,6 +45,31 @@
     button:active {
       transform: scale(0.95);
     }
+
+    /* バブルアニメーション */
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: #ffcc00;
+      animation: bubbleAnimation 2s infinite ease-in-out;
+      opacity: 0;
+    }
+
+    @keyframes bubbleAnimation {
+      0% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+      50% {
+        opacity: 0.6;
+        transform: scale(1.5) translateY(-50px);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(2) translateY(-100px);
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -54,11 +80,26 @@
   <script>
     let count = 0;
     const url = "https://script.google.com/macros/s/AKfycbwPf6VGbdwA_POD-QWMXO4LhZDUCOFQOITyrA8KjMztaMGkse-owYlMFms0sfKt3CZH/exec";
+    const body = document.body;
 
     function updateCount(change) {
       count += change;
       if (count < 0) count = 0;
       document.getElementById("count").textContent = count;
+
+      // 背景色の変更
+      if (count >= 0 && count < 50) {
+        body.style.backgroundColor = "#e1f5fe"; // 青（空き）
+      } else if (count >= 50 && count < 150) {
+        body.style.backgroundColor = "#ffcc80"; // オレンジ（混雑）
+      } else {
+        body.style.backgroundColor = "#f44336"; // 赤（非常に混雑）
+      }
+
+      // 50人到達時のアニメーション発火
+      if (count === 50) {
+        triggerBubbleAnimation();
+      }
 
       const data = { count: count };
 
@@ -71,6 +112,25 @@
         }
       });
     }
+
+    // バブルアニメーションを表示
+    function triggerBubbleAnimation() {
+      const bubble = document.createElement('div');
+      bubble.classList.add('bubble');
+      const size = Math.random() * 100 + 50; // サイズランダム
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * window.innerWidth}px`; // 横ランダム位置
+      bubble.style.top = `${Math.random() * window.innerHeight}px`; // 縦ランダム位置
+
+      document.body.appendChild(bubble);
+
+      // アニメーション終了後にバブルを削除
+      setTimeout(() => {
+        bubble.remove();
+      }, 2000);
+    }
+
   </script>
 </body>
 </html>
