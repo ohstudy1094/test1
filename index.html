@@ -1,45 +1,66 @@
-const WEBHOOK_URL = 'ここにTeamsのWebhook URLを貼る';
-const ZONE_KEY = 'lastNotifiedZone';
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>混雑カウント</title>
+  <style>
+    body {
+      text-align: center;
+      transition: background-color 0.5s ease;
+    }
+    .level1 { background-color: lightgreen; }
+    .level2 { background-color: gold; }
+    .level3 { background-color: orange; }
+    .level4 { background-color: red; animation: pulse 1s infinite; }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body class="level1">
+  <h2>現在の人数: <span id="count">0</span>人</h2>
+  <button onclick="updateCount(1)">入る</button>
+  <button onclick="updateCount(-1)">出る</button>
 
-function doPost(e) {
-  try {
-    const data = JSON.parse(e.postData.contents);
-    const count = data.count;
+  <script>
+    let count = 0;
+    const url = "GASのURLをここに貼る";
 
-    Logger.log("現在の人数: " + count);
+    function updateCount(change) {
+      count += change;
+      if (count < 0) count = 0;
+      document.getElementById("count").textContent = count;
 
-    if (count < 50 || count > 260) {
-      Logger.log("通知対象外");
-      return ContentService.createTextOutput("OK");
+      updateBackground(count);
+
+      const data = { count: count };
+
+      fetch(url, {
+        method: "POST",
+        body: JSON.stringify(data),
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
     }
 
-    // 混雑レベルを計算（1からスタート）
-    const zone = Math.floor((count - 50) / 20) + 1;
+    function updateBackground(count) {
+      const body = document.body;
+      body.className = ""; // 一旦すべてリセット
 
-    // 前回のゾーンを取得
-    const props = PropertiesService.getScriptProperties();
-    const lastZone = parseInt(props.getProperty(ZONE_KEY) || "-1");
-
-    // レベルが変わったときだけ通知（上昇・下降どちらも）
-    if (zone !== lastZone) {
-      const message = `現在の人数は ${count} 人です。混雑レベルが ${zone} に変わりました。`;
-      const payload = { text: message };
-      const options = {
-        method: 'post',
-        contentType: 'application/json',
-        payload: JSON.stringify(payload)
-      };
-      UrlFetchApp.fetch(WEBHOOK_URL, options);
-      Logger.log("通知送信: レベル " + zone);
-      props.setProperty(ZONE_KEY, String(zone));
-    } else {
-      Logger.log("混雑レベル変化なし");
+      if (count >= 200) {
+        body.classList.add("level4");
+      } else if (count >= 150) {
+        body.classList.add("level3");
+      } else if (count >= 100) {
+        body.classList.add("level2");
+      } else if (count >= 50) {
+        body.classList.add("level1");
+      }
     }
-
-    return ContentService.createTextOutput("OK");
-
-  } catch (err) {
-    Logger.log("エラー: " + err);
-    return ContentService.createTextOutput("NG");
-  }
-}
+  </script>
+</body>
+</html>
