@@ -1,136 +1,45 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>混雑カウント</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap');
+const WEBHOOK_URL = 'ここにTeamsのWebhook URLを貼る';
+const ZONE_KEY = 'lastNotifiedZone';
 
-    body {
-      font-family: 'Kosugi Maru', sans-serif;
-      background: #e1f5fe; /* 初期背景色（青） */
-      text-align: center;
-      padding: 80px 20px;
-      margin: 0;
-      transition: background-color 0.5s ease-in-out;
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const count = data.count;
+
+    Logger.log("現在の人数: " + count);
+
+    if (count < 50 || count > 260) {
+      Logger.log("通知対象外");
+      return ContentService.createTextOutput("OK");
     }
 
-    h2 {
-      font-size: 72px;
-      margin-bottom: 60px;
-      font-weight: bold;
-      color: #333;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    // 混雑レベルを計算（1からスタート）
+    const zone = Math.floor((count - 50) / 20) + 1;
+
+    // 前回のゾーンを取得
+    const props = PropertiesService.getScriptProperties();
+    const lastZone = parseInt(props.getProperty(ZONE_KEY) || "-1");
+
+    // レベルが変わったときだけ通知（上昇・下降どちらも）
+    if (zone !== lastZone) {
+      const message = `現在の人数は ${count} 人です。混雑レベルが ${zone} に変わりました。`;
+      const payload = { text: message };
+      const options = {
+        method: 'post',
+        contentType: 'application/json',
+        payload: JSON.stringify(payload)
+      };
+      UrlFetchApp.fetch(WEBHOOK_URL, options);
+      Logger.log("通知送信: レベル " + zone);
+      props.setProperty(ZONE_KEY, String(zone));
+    } else {
+      Logger.log("混雑レベル変化なし");
     }
 
-    button {
-      font-size: 56px;
-      padding: 30px 60px;
-      margin: 30px 20px;
-      border: none;
-      border-radius: 25px;
-      background: #4fc3f7;
-      color: white;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-      cursor: pointer;
-      transition: all 0.2s ease-in-out;
-    }
+    return ContentService.createTextOutput("OK");
 
-    button:hover {
-      background: #29b6f6;
-      transform: scale(1.08);
-      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
-    }
-
-    button:active {
-      transform: scale(0.95);
-    }
-
-    /* バブルアニメーション */
-    .bubble {
-      position: absolute;
-      border-radius: 50%;
-      background: #ffcc00;
-      animation: bubbleAnimation 2s infinite ease-in-out;
-      opacity: 0;
-    }
-
-    @keyframes bubbleAnimation {
-      0% {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-      }
-      50% {
-        opacity: 0.6;
-        transform: scale(1.5) translateY(-50px);
-      }
-      100% {
-        opacity: 0;
-        transform: scale(2) translateY(-100px);
-      }
-    }
-
-  </style>
-</head>
-<body>
-  <h2>現在の人数: <span id="count">0</span>人</h2>
-  <button onclick="updateCount(1)">✨ 入る</button>
-  <button onclick="updateCount(-1)">🚪 出る</button>
-
-  <script>
-    let count = 0;
-    const url = "https://script.google.com/macros/s/AKfycbwPf6VGbdwA_POD-QWMXO4LhZDUCOFQOITyrA8KjMztaMGkse-owYlMFms0sfKt3CZH/exec";
-    const body = document.body;
-
-    function updateCount(change) {
-      count += change;
-      if (count < 0) count = 0;
-      document.getElementById("count").textContent = count;
-
-      // 背景色の変更
-      if (count >= 0 && count < 50) {
-        body.style.backgroundColor = "#e1f5fe"; // 青（空き）
-      } else if (count >= 50 && count < 150) {
-        body.style.backgroundColor = "#ffcc80"; // オレンジ（混雑）
-      } else {
-        body.style.backgroundColor = "#f44336"; // 赤（非常に混雑）
-      }
-
-      // 50人到達時のアニメーション発火
-      if (count === 50) {
-        triggerBubbleAnimation();
-      }
-
-      const data = { count: count };
-
-      fetch(url, {
-        method: "POST",
-        body: JSON.stringify(data),
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
-    }
-
-    // バブルアニメーションを表示
-    function triggerBubbleAnimation() {
-      const bubble = document.createElement('div');
-      bubble.classList.add('bubble');
-      const size = Math.random() * 100 + 50; // サイズランダム
-      bubble.style.width = `${size}px`;
-      bubble.style.height = `${size}px`;
-      bubble.style.left = `${Math.random() * window.innerWidth}px`; // 横ランダム位置
-      bubble.style.top = `${Math.random() * window.innerHeight}px`; // 縦ランダム位置
-
-      document.body.appendChild(bubble);
-
-      // アニメーション終了後にバブルを削除
-      setTimeout(() => {
-        bubble.remove();
-      }, 2000);
-    }
-
-  </script>
-</body>
-</html>
+  } catch (err) {
+    Logger.log("エラー: " + err);
+    return ContentService.createTextOutput("NG");
+  }
+}
