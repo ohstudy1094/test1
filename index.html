@@ -3,11 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <title>混雑カウント</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap');
+
+    body {
+      font-family: 'Kosugi Maru', sans-serif;
+      background: linear-gradient(135deg, #f9f7ff, #e3f2fd);
+      text-align: center;
+      padding-top: 60px;
+      color: #333;
+    }
+
+    h2 {
+      font-size: 52px;
+      margin-bottom: 40px;
+      font-weight: bold;
+      color: #444;
+      text-shadow: 1px 1px 2px #ccc;
+    }
+
+    button {
+      font-size: 32px;
+      padding: 18px 36px;
+      margin: 20px;
+      border: none;
+      border-radius: 15px;
+      background: #4fc3f7;
+      color: white;
+      box-shadow: 0 6px 10px rgba(0,0,0,0.1);
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: #29b6f6;
+      transform: scale(1.05);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+  </style>
 </head>
 <body>
   <h2>現在の人数: <span id="count">0</span>人</h2>
-  <button onclick="updateCount(1)">入る</button>
-  <button onclick="updateCount(-1)">出る</button>
+  <button onclick="updateCount(1)">✨ 入る</button>
+  <button onclick="updateCount(-1)">🚪 出る</button>
 
   <script>
     let count = 0;
@@ -20,12 +61,12 @@
 
       const data = { count: count };
 
-      console.log("送信データ:", data); // 確認用
+      console.log("送信データ:", data);
 
       fetch(url, {
         method: "POST",
         body: JSON.stringify(data),
-        mode: "no-cors",  // ← ここが今回のポイント！
+        mode: "no-cors",
         headers: {
           "Content-Type": "application/json"
         }
