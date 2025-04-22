@@ -8,73 +8,32 @@
 
     body {
       font-family: 'Kosugi Maru', sans-serif;
-      background: linear-gradient(135deg, #f9f7ff, #e3f2fd);
+      background: linear-gradient(135deg, #fce4ec, #e1f5fe);
       text-align: center;
-      padding-top: 60px;
-      color: #333;
+      padding: 80px 20px;
+      margin: 0;
     }
 
     h2 {
-      font-size: 80px;
-      margin-bottom: 40px;
+      font-size: 72px;
+      margin-bottom: 60px;
       font-weight: bold;
-      color: #444;
-      text-shadow: 1px 1px 2px #ccc;
+      color: #333;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     button {
-      font-size: 32px;
+      font-size: 56px;
       padding: 30px 60px;
-      margin: 20px;
+      margin: 30px 20px;
       border: none;
-      border-radius: 15px;
+      border-radius: 25px;
       background: #4fc3f7;
       color: white;
-      box-shadow: 0 6px 10px rgba(0,0,0,0.1);
-      transition: all 0.2s ease;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
     }
 
     button:hover {
       background: #29b6f6;
-      transform: scale(1.05);
-      box-shadow: 0 8px 15px rgba(0,0,0,0.2);
-    }
-
-    button:active {
-      transform: scale(0.98);
-    }
-  </style>
-</head>
-<body>
-  <h2>現在の人数: <span id="count">0</span>人</h2>
-  <button onclick="updateCount(1)">✨ 入る</button>
-  <button onclick="updateCount(-1)">🚪 出る</button>
-
-  <script>
-    let count = 0;
-    const url = "https://script.google.com/macros/s/AKfycbwPf6VGbdwA_POD-QWMXO4LhZDUCOFQOITyrA8KjMztaMGkse-owYlMFms0sfKt3CZH/exec";
-
-    function updateCount(change) {
-      count += change;
-      if (count < 0) count = 0;
-      document.getElementById("count").textContent = count;
-
-      const data = { count: count };
-
-      console.log("送信データ:", data);
-
-      fetch(url, {
-        method: "POST",
-        body: JSON.stringify(data),
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
-      .catch(error => {
-        console.error("送信エラー:", error);
-      });
-    }
-  </script>
-</body>
-</html>
