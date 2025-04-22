@@ -37,3 +37,40 @@
 
     button:hover {
       background: #29b6f6;
+      transform: scale(1.08);
+      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body>
+  <h2>現在の人数: <span id="count">0</span>人</h2>
+  <button onclick="updateCount(1)">✨ 入る</button>
+  <button onclick="updateCount(-1)">🚪 出る</button>
+
+  <script>
+    let count = 0;
+    const url = "https://script.google.com/macros/s/AKfycbwPf6VGbdwA_POD-QWMXO4LhZDUCOFQOITyrA8KjMztaMGkse-owYlMFms0sfKt3CZH/exec";
+
+    function updateCount(change) {
+      count += change;
+      if (count < 0) count = 0;
+      document.getElementById("count").textContent = count;
+
+      const data = { count: count };
+
+      fetch(url, {
+        method: "POST",
+        body: JSON.stringify(data),
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+    }
+  </script>
+</body>
+</html>
