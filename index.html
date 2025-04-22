@@ -4,36 +4,102 @@
   <meta charset="UTF-8">
   <title>混雑カウント</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap');
+
     body {
+      font-family: 'Kosugi Maru', sans-serif;
+      background: #e1f5fe; /* 初期背景色（青） */
       text-align: center;
-      transition: background-color 0.5s ease;
+      padding: 80px 20px;
+      margin: 0;
+      transition: background-color 0.5s ease-in-out;
     }
-    .level1 { background-color: lightgreen; }
-    .level2 { background-color: gold; }
-    .level3 { background-color: orange; }
-    .level4 { background-color: red; animation: pulse 1s infinite; }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.02); }
-      100% { transform: scale(1); }
+
+    h2 {
+      font-size: 72px;
+      margin-bottom: 60px;
+      font-weight: bold;
+      color: #333;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     }
+
+    button {
+      font-size: 56px;
+      padding: 30px 60px;
+      margin: 30px 20px;
+      border: none;
+      border-radius: 25px;
+      background: #4fc3f7;
+      color: white;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+
+    button:hover {
+      background: #29b6f6;
+      transform: scale(1.08);
+      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    /* バブルアニメーション */
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: #ffcc00;
+      animation: bubbleAnimation 2s infinite ease-in-out;
+      opacity: 0;
+    }
+
+    @keyframes bubbleAnimation {
+      0% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+      50% {
+        opacity: 0.6;
+        transform: scale(1.5) translateY(-50px);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(2) translateY(-100px);
+      }
+    }
+
   </style>
 </head>
-<body class="level1">
+<body>
   <h2>現在の人数: <span id="count">0</span>人</h2>
-  <button onclick="updateCount(1)">入る</button>
-  <button onclick="updateCount(-1)">出る</button>
+  <button onclick="updateCount(1)">✨ 入る</button>
+  <button onclick="updateCount(-1)">🚪 出る</button>
 
   <script>
     let count = 0;
-    const url = "GASのURLをここに貼る";
+    const url = "https://script.google.com/macros/s/AKfycbwPf6VGbdwA_POD-QWMXO4LhZDUCOFQOITyrA8KjMztaMGkse-owYlMFms0sfKt3CZH/exec";
+    const body = document.body;
 
     function updateCount(change) {
       count += change;
       if (count < 0) count = 0;
       document.getElementById("count").textContent = count;
 
-      updateBackground(count);
+      // 背景色の変更
+      if (count >= 0 && count < 50) {
+        body.style.backgroundColor = "#e1f5fe"; // 青（空き）
+      } else if (count >= 50 && count < 150) {
+        body.style.backgroundColor = "#ffcc80"; // オレンジ（混雑）
+      } else {
+        body.style.backgroundColor = "#f44336"; // 赤（非常に混雑）
+      }
+
+      // 50人到達時のアニメーション発火
+      if (count === 50) {
+        triggerBubbleAnimation();
+      }
 
       const data = { count: count };
 
@@ -47,20 +113,24 @@
       });
     }
 
-    function updateBackground(count) {
-      const body = document.body;
-      body.className = ""; // 一旦すべてリセット
+    // バブルアニメーションを表示
+    function triggerBubbleAnimation() {
+      const bubble = document.createElement('div');
+      bubble.classList.add('bubble');
+      const size = Math.random() * 100 + 50; // サイズランダム
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * window.innerWidth}px`; // 横ランダム位置
+      bubble.style.top = `${Math.random() * window.innerHeight}px`; // 縦ランダム位置
 
-      if (count >= 200) {
-        body.classList.add("level4");
-      } else if (count >= 150) {
-        body.classList.add("level3");
-      } else if (count >= 100) {
-        body.classList.add("level2");
-      } else if (count >= 50) {
-        body.classList.add("level1");
-      }
+      document.body.appendChild(bubble);
+
+      // アニメーション終了後にバブルを削除
+      setTimeout(() => {
+        bubble.remove();
+      }, 2000);
     }
+
   </script>
 </body>
 </html>
