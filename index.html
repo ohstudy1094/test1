@@ -8,7 +8,7 @@
 
     body {
       font-family: 'Kosugi Maru', sans-serif;
-      background: #e1f5fe; /* 初期背景色（青） */
+      background: #e1f5fe;
       text-align: center;
       padding: 80px 20px;
       margin: 0;
@@ -46,7 +46,6 @@
       transform: scale(0.95);
     }
 
-    /* バブルアニメーション */
     .bubble {
       position: absolute;
       border-radius: 50%;
@@ -56,20 +55,10 @@
     }
 
     @keyframes bubbleAnimation {
-      0% {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-      }
-      50% {
-        opacity: 0.6;
-        transform: scale(1.5) translateY(-50px);
-      }
-      100% {
-        opacity: 0;
-        transform: scale(2) translateY(-100px);
-      }
+      0% { opacity: 1; transform: scale(1) translateY(0); }
+      50% { opacity: 0.6; transform: scale(1.5) translateY(-50px); }
+      100% { opacity: 0; transform: scale(2) translateY(-100px); }
     }
-
   </style>
 </head>
 <body>
@@ -87,50 +76,40 @@
       if (count < 0) count = 0;
       document.getElementById("count").textContent = count;
 
-      // 背景色の変更
       if (count >= 0 && count < 50) {
-        body.style.backgroundColor = "#e1f5fe"; // 青（空き）
+        body.style.backgroundColor = "#e1f5fe";
       } else if (count >= 50 && count < 150) {
-        body.style.backgroundColor = "#ffcc80"; // オレンジ（混雑）
+        body.style.backgroundColor = "#ffcc80";
       } else {
-        body.style.backgroundColor = "#f44336"; // 赤（非常に混雑）
+        body.style.backgroundColor = "#f44336";
       }
 
-      // 50人到達時のアニメーション発火
-      if (count === 50) {
-        triggerBubbleAnimation();
-      }
+      if (count === 50) triggerBubbleAnimation();
+    }
 
-      const data = { count: count };
+    function triggerBubbleAnimation() {
+      const bubble = document.createElement('div');
+      bubble.classList.add('bubble');
+      const size = Math.random() * 100 + 50;
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * window.innerWidth}px`;
+      bubble.style.top = `${Math.random() * window.innerHeight}px`;
+      document.body.appendChild(bubble);
+      setTimeout(() => bubble.remove(), 2000);
+    }
 
+    // ⏱ 5分おきに送信（時間帯チェックはGAS側で行う）
+    setInterval(() => {
       fetch(url, {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify({ count: count }),
         mode: "no-cors",
         headers: {
           "Content-Type": "application/json"
         }
       });
-    }
-
-    // バブルアニメーションを表示
-    function triggerBubbleAnimation() {
-      const bubble = document.createElement('div');
-      bubble.classList.add('bubble');
-      const size = Math.random() * 100 + 50; // サイズランダム
-      bubble.style.width = `${size}px`;
-      bubble.style.height = `${size}px`;
-      bubble.style.left = `${Math.random() * window.innerWidth}px`; // 横ランダム位置
-      bubble.style.top = `${Math.random() * window.innerHeight}px`; // 縦ランダム位置
-
-      document.body.appendChild(bubble);
-
-      // アニメーション終了後にバブルを削除
-      setTimeout(() => {
-        bubble.remove();
-      }, 2000);
-    }
-
+    }, 5 * 60 * 1000); // 5分
   </script>
 </body>
 </html>
