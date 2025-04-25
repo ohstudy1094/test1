@@ -3,22 +3,102 @@
 <head>
   <meta charset="UTF-8">
   <title>混雑カウント</title>
+  <style>
+    body {
+      font-family: 'Kosugi Maru', sans-serif;
+      text-align: center;
+      background: #e1f5fe;
+      padding: 80px 20px;
+      margin: 0;
+      transition: background-color 0.5s ease-in-out;
+    }
+
+    h2 {
+      font-size: 72px;
+      margin-bottom: 60px;
+      font-weight: bold;
+      color: #333;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    button {
+      font-size: 56px;
+      padding: 30px 60px;
+      margin: 30px 20px;
+      border: none;
+      border-radius: 25px;
+      background: #4fc3f7;
+      color: white;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+
+    button:hover {
+      background: #29b6f6;
+      transform: scale(1.08);
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    /* バブルアニメーション */
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: #ffcc00;
+      animation: bubbleAnimation 2s ease-in-out;
+      opacity: 0;
+      z-index: 100;
+    }
+
+    @keyframes bubbleAnimation {
+      0% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+      50% {
+        opacity: 0.6;
+        transform: scale(1.5) translateY(-50px);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(2) translateY(-100px);
+      }
+    }
+  </style>
 </head>
 <body>
   <h2>現在の人数: <span id="count">0</span>人</h2>
-  <button onclick="updateCount(1)">＋ 入る</button>
-  <button onclick="updateCount(-1)">－ 出る</button>
+  <button onclick="updateCount(1)">✨ 入る</button>
+  <button onclick="updateCount(-1)">🚪 出る</button>
 
   <script>
     let count = 0;
-    const url = "https://script.google.com/macros/s/AKfycbxaqXSGuNIT3r_jW16Q5cZhC5EPY7x8nnSwr9GFOUqBCY3SlBLhNeVixXKhNzXxS16U/exec"; // GAS1本用
+    const url = "https://script.google.com/macros/s/AKfycbxaqXSGuNIT3r_jW16Q5cZhC5EPY7x8nnSwr9GFOUqBCY3SlBLhNeVixXKhNzXxS16U/exec";
+    const body = document.body;
 
     function updateCount(change) {
       count += change;
       if (count < 0) count = 0;
       document.getElementById("count").textContent = count;
 
-      // 🔔 通知送信（mode: notify）
+      // 背景色変更
+      if (count < 50) {
+        body.style.backgroundColor = "#e1f5fe"; // 青
+      } else if (count < 150) {
+        body.style.backgroundColor = "#ffcc80"; // オレンジ
+      } else {
+        body.style.backgroundColor = "#f44336"; // 赤
+      }
+
+      // 50人ぴったりで達成モーション
+      if (count === 50) {
+        triggerBubbleAnimation();
+      }
+
+      // 🔔 通知送信
       fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -27,7 +107,7 @@
       });
     }
 
-    // ⏱ 5分おきに記録送信（mode: log）
+    // 📊 5分おきにログ送信
     setInterval(() => {
       fetch(url, {
         method: "POST",
@@ -36,6 +116,21 @@
         body: JSON.stringify({ count, mode: "log" })
       });
     }, 5 * 60 * 1000);
+
+    // 🎉 バブル演出
+    function triggerBubbleAnimation() {
+      for (let i = 0; i < 10; i++) {
+        const bubble = document.createElement('div');
+        bubble.classList.add('bubble');
+        const size = Math.random() * 100 + 50;
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        bubble.style.left = `${Math.random() * window.innerWidth}px`;
+        bubble.style.top = `${Math.random() * window.innerHeight}px`;
+        document.body.appendChild(bubble);
+        setTimeout(() => bubble.remove(), 2000);
+      }
+    }
   </script>
 </body>
 </html>
