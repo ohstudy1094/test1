@@ -25,14 +25,14 @@
 </head>
 <body>
   <h2>現在の人数: <span id="count">0</span>人</h2>
-  <button onclick="updateCount(1)">＋ 入る</button>
-  <button onclick="updateCount(-1)">－ 出る</button>
+  <button onclick="updateCount(1)">🚪 入る</button>
+  <button onclick="updateCount(-1)">👋 出る</button>
 
   <script>
     let count = 0;
 
-    const notifyUrl = "https://script.google.com/macros/s/あなたの通知GAS/exec"; // GAS①
-    const logUrl = "https://script.google.com/macros/s/あなたの記録GAS/exec";   // GAS②
+    const notifyUrl = "https://script.google.com/macros/s/AKfycbxaqXSGuNIT3r_jW16Q5cZhC5EPY7x8nnSwr9GFOUqBCY3SlBLhNeVixXKhNzXxS16U/exec"; // GAS①
+    const logUrl = "https://script.google.com/macros/s/AKfycbywhq7SWwhPITgR7KEO_Ssdpb-ADmdtgblQnfPK79nt38H-II-rXv__eyKDS2JapeW3/exec";   // GAS②
 
     function updateCount(change) {
       count += change;
