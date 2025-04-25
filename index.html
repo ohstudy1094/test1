@@ -4,112 +4,59 @@
   <meta charset="UTF-8">
   <title>混雑カウント</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap');
-
     body {
       font-family: 'Kosugi Maru', sans-serif;
-      background: #e1f5fe;
       text-align: center;
+      background: #e1f5fe;
       padding: 80px 20px;
-      margin: 0;
-      transition: background-color 0.5s ease-in-out;
     }
-
-    h2 {
-      font-size: 72px;
-      margin-bottom: 60px;
-      font-weight: bold;
-      color: #333;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
+    h2 { font-size: 60px; margin-bottom: 50px; }
     button {
-      font-size: 56px;
+      font-size: 48px;
       padding: 30px 60px;
-      margin: 30px 20px;
-      border: none;
-      border-radius: 25px;
+      margin: 20px;
       background: #4fc3f7;
+      border: none;
+      border-radius: 20px;
       color: white;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
       cursor: pointer;
-      transition: all 0.2s ease-in-out;
-    }
-
-    button:hover {
-      background: #29b6f6;
-      transform: scale(1.08);
-      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
-    }
-
-    button:active {
-      transform: scale(0.95);
-    }
-
-    .bubble {
-      position: absolute;
-      border-radius: 50%;
-      background: #ffcc00;
-      animation: bubbleAnimation 2s infinite ease-in-out;
-      opacity: 0;
-    }
-
-    @keyframes bubbleAnimation {
-      0% { opacity: 1; transform: scale(1) translateY(0); }
-      50% { opacity: 0.6; transform: scale(1.5) translateY(-50px); }
-      100% { opacity: 0; transform: scale(2) translateY(-100px); }
     }
   </style>
 </head>
 <body>
   <h2>現在の人数: <span id="count">0</span>人</h2>
-  <button onclick="updateCount(1)">✨ 入る</button>
-  <button onclick="updateCount(-1)">🚪 出る</button>
+  <button onclick="updateCount(1)">＋ 入る</button>
+  <button onclick="updateCount(-1)">－ 出る</button>
 
   <script>
     let count = 0;
-    const url = "https://script.google.com/macros/s/AKfycbz-LWVwnSLrUAb4pFk9JQxrgtgPPbUeKHY8ma_MFKxMgoPFqUOQU41FBhyyLljW2ps/exec";
-    const body = document.body;
+
+    const notifyUrl = "https://script.google.com/macros/s/あなたの通知GAS/exec"; // GAS①
+    const logUrl = "https://script.google.com/macros/s/あなたの記録GAS/exec";   // GAS②
 
     function updateCount(change) {
       count += change;
       if (count < 0) count = 0;
       document.getElementById("count").textContent = count;
 
-      if (count >= 0 && count < 50) {
-        body.style.backgroundColor = "#e1f5fe";
-      } else if (count >= 50 && count < 150) {
-        body.style.backgroundColor = "#ffcc80";
-      } else {
-        body.style.backgroundColor = "#f44336";
-      }
-
-      if (count === 50) triggerBubbleAnimation();
-    }
-
-    function triggerBubbleAnimation() {
-      const bubble = document.createElement('div');
-      bubble.classList.add('bubble');
-      const size = Math.random() * 100 + 50;
-      bubble.style.width = `${size}px`;
-      bubble.style.height = `${size}px`;
-      bubble.style.left = `${Math.random() * window.innerWidth}px`;
-      bubble.style.top = `${Math.random() * window.innerHeight}px`;
-      document.body.appendChild(bubble);
-      setTimeout(() => bubble.remove(), 2000);
-    }
-
-    // ⏱ 5分おきに送信（時間帯チェックはGAS側で行う）
-    setInterval(() => {
-      fetch(url, {
+      // 🔔 通知だけ送信
+      fetch(notifyUrl, {
         method: "POST",
-        body: JSON.stringify({ count: count }),
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "application/json"
-        }
+        body: JSON.stringify({ count }),
+        headers: { "Content-Type": "application/json" },
+        mode: "no-cors"
       });
-    }, 5 * 60 * 1000); // 5分
+    }
+
+    // 📊 5分ごとに記録だけ送信
+    setInterval(() => {
+      fetch(logUrl, {
+        method: "POST",
+        body: JSON.stringify({ count }),
+        headers: { "Content-Type": "application/json" },
+        mode: "no-cors"
+      });
+    }, 5 * 60 * 1000);
   </script>
 </body>
 </html>
