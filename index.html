@@ -3,58 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <title>混雑カウント</title>
-  <style>
-    body {
-      font-family: 'Kosugi Maru', sans-serif;
-      text-align: center;
-      background: #e1f5fe;
-      padding: 80px 20px;
-    }
-    h2 { font-size: 60px; margin-bottom: 50px; }
-    button {
-      font-size: 48px;
-      padding: 30px 60px;
-      margin: 20px;
-      background: #4fc3f7;
-      border: none;
-      border-radius: 20px;
-      color: white;
-      cursor: pointer;
-    }
-  </style>
 </head>
 <body>
   <h2>現在の人数: <span id="count">0</span>人</h2>
-  <button onclick="updateCount(1)">🚪 入る</button>
-  <button onclick="updateCount(-1)">👋 出る</button>
+  <button onclick="updateCount(1)">＋ 入る</button>
+  <button onclick="updateCount(-1)">－ 出る</button>
 
   <script>
     let count = 0;
-
-    const notifyUrl = "https://script.google.com/macros/s/AKfycbxaqXSGuNIT3r_jW16Q5cZhC5EPY7x8nnSwr9GFOUqBCY3SlBLhNeVixXKhNzXxS16U/exec"; // GAS①
-    const logUrl = "https://script.google.com/macros/s/AKfycbywhq7SWwhPITgR7KEO_Ssdpb-ADmdtgblQnfPK79nt38H-II-rXv__eyKDS2JapeW3/exec";   // GAS②
+    const url = "https://script.google.com/macros/s/あなたのデプロイURL/exec"; // GAS1本用
 
     function updateCount(change) {
       count += change;
       if (count < 0) count = 0;
       document.getElementById("count").textContent = count;
 
-      // 🔔 通知だけ送信
-      fetch(notifyUrl, {
+      // 🔔 通知送信（mode: notify）
+      fetch(url, {
         method: "POST",
-        body: JSON.stringify({ count }),
         headers: { "Content-Type": "application/json" },
-        mode: "no-cors"
+        mode: "no-cors",
+        body: JSON.stringify({ count, mode: "notify" })
       });
     }
 
-    // 📊 5分ごとに記録だけ送信
+    // ⏱ 5分おきに記録送信（mode: log）
     setInterval(() => {
-      fetch(logUrl, {
+      fetch(url, {
         method: "POST",
-        body: JSON.stringify({ count }),
         headers: { "Content-Type": "application/json" },
-        mode: "no-cors"
+        mode: "no-cors",
+        body: JSON.stringify({ count, mode: "log" })
       });
     }, 5 * 60 * 1000);
   </script>
