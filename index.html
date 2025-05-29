@@ -43,7 +43,6 @@
       transform: scale(0.95);
     }
 
-    /* バブルアニメーション */
     .bubble {
       position: absolute;
       border-radius: 50%;
@@ -93,21 +92,23 @@
         body.style.backgroundColor = "#f44336"; // 赤
       }
 
-      // 50人ぴったりで達成モーション
+      // 🎉 バブル演出（50人達成時）
       if (count === 50) {
         triggerBubbleAnimation();
       }
 
-      // 🔔 通知送信
-      fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        mode: "no-cors",
-        body: JSON.stringify({ count, mode: "notify" })
-      });
+      // ✅ Teams通知送信（50人・70人・90人など 20人刻みで送信）
+      if (count >= 50 && (count - 50) % 20 === 0) {
+        fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          mode: "no-cors",
+          body: JSON.stringify({ count, mode: "notify" })
+        });
+      }
     }
 
-    // 📊 5分おきにログ送信
+    // 📊 5分おきに人数ログを送信
     setInterval(() => {
       fetch(url, {
         method: "POST",
@@ -115,9 +116,9 @@
         mode: "no-cors",
         body: JSON.stringify({ count, mode: "log" })
       });
-    }, 5 * 60 * 1000);
+    }, 5 * 60 * 1000); // 5分
 
-    // 🎉 バブル演出
+    // 🎈 バブルアニメーション
     function triggerBubbleAnimation() {
       for (let i = 0; i < 10; i++) {
         const bubble = document.createElement('div');
